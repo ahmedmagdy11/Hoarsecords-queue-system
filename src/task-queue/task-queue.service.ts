@@ -1,5 +1,6 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Queue } from 'bullmq';
 import { CreateTaskDTO } from 'src/tasks/create-task.dto';
 
@@ -8,14 +9,16 @@ export class TaskQueueService {
   constructor(
     @InjectQueue('task-queue') private taskQueue: Queue,
     @InjectQueue('DLQ') private DLQ: Queue,
+    private configService: ConfigService,
   ) {}
   async addTask(body: CreateTaskDTO) {
     const delay = body.visibility_time
       ? new Date(body.visibility_time).getTime() - Date.now()
       : 0;
+
     const job = await this.taskQueue.add(body.type, body.payload, {
       delay: delay,
-      attempts: 1,
+      attempts: parseInt(this.configService.get('MAX_RETRIES') ?? '2'),
       backoff: { type: 'exponential', delay: 100 },
     });
 

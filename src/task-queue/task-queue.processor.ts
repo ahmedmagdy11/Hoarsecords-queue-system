@@ -4,11 +4,15 @@ import {
   Processor,
   WorkerHost,
 } from '@nestjs/bullmq';
+import { ConfigService } from '@nestjs/config';
 import { Job, Queue } from 'bullmq';
 
 @Processor('task-queue')
 export class TaskQueueProccessor extends WorkerHost {
-  constructor(@InjectQueue('DLQ') private DLQ: Queue) {
+  constructor(
+    @InjectQueue('DLQ') private DLQ: Queue,
+    private configService: ConfigService,
+  ) {
     super();
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -36,7 +40,7 @@ export class TaskQueueProccessor extends WorkerHost {
   @OnWorkerEvent('failed')
   onFailed(job: Job) {
     console.log(`Job failed with id: ${job.id}`);
-    if (job.attemptsMade == 1) {
+    if (job.attemptsMade == (this.configService.get('MAX_RETRIES') ?? 2)) {
       this.DLQ.add(job.name, job);
     }
   }
