@@ -15,6 +15,7 @@ export class TaskQueueService {
     const delay = body.visibility_time
       ? new Date(body.visibility_time).getTime() - Date.now()
       : 0;
+    console.log(delay);
 
     const job = await this.taskQueue.add(body.type, body.payload, {
       delay: delay,

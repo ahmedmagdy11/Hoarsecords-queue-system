@@ -18,6 +18,9 @@ export class TasksController {
 
   @Delete('dlq')
   async deleteDlq() {
-    return await this.taskService.deleteFromDLQ();
+    await this.taskService.deleteFromDLQ();
+    return {
+      status: 'DLQ cleared',
+    };
   }
 }
