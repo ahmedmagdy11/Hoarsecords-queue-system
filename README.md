@@ -28,6 +28,7 @@ Create a **.env** file in the root directory and add the following:
 MAX_RETRIES=2
 ```
 
+#### Do this if you don't have REDIS installed
 ### 4️⃣ Start Redis Server
 Make sure you have Redis running locally.
 ```sh
